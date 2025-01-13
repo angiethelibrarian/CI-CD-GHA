@@ -1,0 +1,38 @@
+# Name of workflow
+name: Develop Workflow
+
+# Trigger workflow on push to dev branches
+on:
+  pull_request:
+    branches:
+      - develop
+
+# Jobs to carry out
+jobs:
+  dev-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.X, 20.X, 22.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci 
+
+      -name: Cypress run component tests
+      uses: cypress-io/github-action@v6
+      with:
+        build: npm run build
+        start: npm run start
+        component: true
+
+
